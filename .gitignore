@@ -1,0 +1,11 @@
+# Python
+__pycache__/
+*.pyc
+
+# Claude Code local settings (específico de cada máquina)
+.claude/settings.local.json
+
+# Editor / OS
+.vscode/
+*.swp
+.DS_Store
