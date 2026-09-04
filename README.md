@@ -1,3 +1,5 @@
+Grupo: Francisco Soria, Martin Bravo, Cande Benavides, Dolores Gómez, Tatiana Pagano, Abigail Barbieri
+
 # pierna_encoder_pkg
 
 Simulación en ROS2 + RViz de una pierna de 2 articulaciones, donde cada articulación se
