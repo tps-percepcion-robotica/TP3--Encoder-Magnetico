@@ -7,13 +7,13 @@
 
 static const char *TAG = "pote";
 
+// Lectura directa: cursor del potenciómetro conectado directo al ADC,
+// sin amplificador ni divisor de referencia (versión simple, un solo canal).
 #define CANAL_SENAL   ADC_CHANNEL_7   /* GPIO35 */
-#define CANAL_REF     ADC_CHANNEL_6   /* GPIO34 */
 #define ATENUACION    ADC_ATTEN_DB_12
 
-#define GANANCIA_AMP  2.0f
-#define R_POTE        10000.0f
-#define R_PIE         1000.0f
+// Mismo rango que espera sensores_microros_main.c (posicion = grados/300*100),
+// así el /posicion final da igual que con la versión amplificada.
 #define RECORRIDO_DEG 300.0f
 
 static adc_oneshot_unit_handle_t s_adc  = NULL;
@@ -53,7 +53,6 @@ esp_err_t pote_init(void)
         .atten    = ATENUACION,
     };
     ESP_ERROR_CHECK(adc_oneshot_config_channel(s_adc, CANAL_SENAL, &chan_cfg));
-    ESP_ERROR_CHECK(adc_oneshot_config_channel(s_adc, CANAL_REF,   &chan_cfg));
 
     if (crear_calibracion() != ESP_OK) {
         ESP_LOGW(TAG, "Sin calibracion de fabrica, solo cuentas crudas");
@@ -65,23 +64,18 @@ esp_err_t pote_init(void)
 esp_err_t pote_leer(pote_muestra_t *m)
 {
     ESP_ERROR_CHECK(adc_oneshot_read(s_adc, CANAL_SENAL, &m->raw_senal));
-    ESP_ERROR_CHECK(adc_oneshot_read(s_adc, CANAL_REF,   &m->raw_ref));
 
     m->mv_senal = m->raw_senal;
-    m->mv_ref   = m->raw_ref;
     if (s_cali) {
         adc_cali_raw_to_voltage(s_cali, m->raw_senal, &m->mv_senal);
-        adc_cali_raw_to_voltage(s_cali, m->raw_ref,   &m->mv_ref);
     }
 
-    float v_cursor = m->mv_senal / GANANCIA_AMP;
-    float v_arriba = m->mv_ref;
-    float v_abajo  = v_arriba * R_PIE / (R_POTE + R_PIE);
+    // No hay canal de referencia en esta versión.
+    m->raw_ref = 0;
+    m->mv_ref  = 0;
 
-    float span = v_arriba - v_abajo;
-    m->grados = (span > 1.0f)
-              ? ((v_cursor - v_abajo) / span) * RECORRIDO_DEG
-              : 0.0f;
+    // Mapeo lineal directo del ADC (0-4095) al recorrido mecánico total.
+    m->grados = ((float)m->raw_senal / 4095.0f) * RECORRIDO_DEG;
 
     return ESP_OK;
 }

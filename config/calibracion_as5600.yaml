@@ -1,0 +1,5 @@
+rodilla_1:
+  offset_grados: 31.81640625
+  invertido: false
+  limite_min_grados: 0.0
+  limite_max_grados: 120.0

@@ -1,12 +1,13 @@
 <launch>
-  <!-- Levanta todo el pipeline real: micro-ROS agent -> potenciómetro (ESP32)
-       -> nodo de calibración -> robot_state_publisher -> RViz.
-       Requiere el firmware de potenciometro_firmware/ ya flasheado y encendido,
-       y que la calibración ya exista en config/calibracion_potenciometros.yaml
-       (correr calibrar_potenciometro.py antes si hace falta). -->
+  <!-- Levanta todo 
+       Requiere el firmware de potenciometro_firmware/ ya flasheado y encendid -->
 
+
+  <!--Let variables rutas-->
   <let name="urdf_path" value="$(find-pkg-share pierna_encoder_pkg)/urdf/pierna.urdf.xacro" />
   <let name="rviz_config_path" value="$(find-pkg-share pierna_encoder_pkg)/rviz/pierna.rviz" />
+
+  <!--Levanta el agente micro ros puerto -->
 
   <node pkg="micro_ros_agent" exec="micro_ros_agent" name="micro_ros_agent"
         args="udp4 --port 8888" output="screen" />
@@ -14,6 +15,8 @@
   <node pkg="robot_state_publisher" exec="robot_state_publisher" name="robot_state_publisher" output="screen">
     <param name="robot_description" value="$(command 'xacro $(var urdf_path)')" type="str" />
   </node>
+
+  <!--Levanta  Traductor del potenciómetro-->
 
   <node pkg="pierna_encoder_pkg" exec="calibracion_node" name="calibracion_potenciometro_node" output="screen">
     <param name="pot_id" value="pierna_1" />
@@ -23,9 +26,20 @@
     <param name="joint_states_topic" value="/joint_states_sensores" />
   </node>
 
-  <node pkg="joint_state_publisher" exec="joint_state_publisher" name="joint_state_publisher" output="screen">
-    <param name="source_list" value="[/joint_states_sensores]" type="list_of_str" />
+  <!--Levanta  Traductor del as5600 -->
+
+  <node pkg="pierna_encoder_pkg" exec="calibracion_as5600_node" name="calibracion_as5600_node" output="screen">
+    <param name="enc_id" value="rodilla_1" />
+    <param name="angulo_topic" value="/angulo" />
+    <param name="joint_name" value="joint_rodilla" />
+    <param name="joint_states_topic" value="/joint_states_sensores_rodilla" />
   </node>
+
+  <node pkg="joint_state_publisher" exec="joint_state_publisher" name="joint_state_publisher" output="screen">
+    <param name="source_list" value="[/joint_states_sensores, /joint_states_sensores_rodilla]" type="list_of_str" />
+  </node>
+  
+  <!--Sube  rvizz -->
 
   <node pkg="rviz2" exec="rviz2" name="rviz2" args="-d $(var rviz_config_path)" output="screen" />
 </launch>

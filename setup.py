@@ -28,6 +28,8 @@ setup(
         'console_scripts': [
             'calibracion_node = pierna_encoder_pkg.calibracion_node:main',
             'calibrar_potenciometro = pierna_encoder_pkg.calibrar_potenciometro:main',
+            'calibracion_as5600_node = pierna_encoder_pkg.calibracion_as5600_node:main',
+            'calibrar_as5600 = pierna_encoder_pkg.calibrar_as5600:main',
         ],
     },
 )

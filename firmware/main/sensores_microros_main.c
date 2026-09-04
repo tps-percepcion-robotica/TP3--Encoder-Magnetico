@@ -40,16 +40,22 @@ static const char *TAG = "SENSORES";
 
 // Potenciometro
 static rcl_publisher_t posicion_publisher;
-static rcl_publisher_t voltaje_publisher;
+// voltaje_publisher: desactivado temporalmente. La libreria micro-ROS que
+// estamos usando (cacheada de otro proyecto) fue compilada con
+// RMW_UXRCE_MAX_PUBLISHERS=2, asi que solo entran 2 publishers a la vez.
+// No lo usa nada del lado ROS2 todavia, asi que sacrificamos este y no
+// "angulo" (AS5600). Reactivar cuando se recompile la libreria con un
+// limite mas alto (ver README, seccion firmware).
+// static rcl_publisher_t voltaje_publisher;
 // Encoder
-static rcl_publisher_t angulo_publisher; 
+static rcl_publisher_t angulo_publisher;
 
 // Mensajes de micro-ROS
 // =======================================
 
 // Potenciometro
 static std_msgs__msg__Int32 posicion_msg;
-static std_msgs__msg__Float32 voltaje_msg;
+// static std_msgs__msg__Float32 voltaje_msg;
 // Encoder
 static std_msgs__msg__Float32 angulo_msg;
 
@@ -66,22 +72,19 @@ static void timer_callback(rcl_timer_t *timer, int64_t last_call_time){
         
         
         posicion_msg.data = (int32_t)((muestra_pote.grados / 300.0f) * 100.0f);
-        voltaje_msg.data = muestra_pote.mv_senal / 1000.0f;
 
         RCSOFTCHECK(rcl_publish(&posicion_publisher, &posicion_msg, NULL));
-        RCSOFTCHECK(rcl_publish(&voltaje_publisher, &voltaje_msg, NULL));
     }
 
     // Leer el encoder y publicar angulo
     as5600_muestra_t muestra_encoder;
-    if (as5600_leer(&muestra_encoder) == ESP_OK) { 
-
+    if (as5600_leer(&muestra_encoder) == ESP_OK) {
         angulo_msg.data = muestra_encoder.grados;
         RCSOFTCHECK(rcl_publish(&angulo_publisher, &angulo_msg, NULL));
-        
     }
 
-    ESP_LOGI(TAG, "Angulo Encoder: %.2f grados | Posicion Potenciometro: %.2f", angulo_msg.data, posicion_msg.data);
+    ESP_LOGI(TAG, "ADC crudo: %d | Posicion: %ld | Angulo AS5600: %.2f",
+             muestra_pote.raw_senal, (long)posicion_msg.data, angulo_msg.data);
 }
 
 static void micro_ros_task(void *arg){
@@ -120,17 +123,12 @@ static void micro_ros_task(void *arg){
         RCCHECK(rclc_node_init_default(&node, "sensores_node", "", &support));
         ESP_LOGI(TAG, "Nodo creado correctamente");
 
-        RCCHECK(rclc_publisher_init_default(
+        RCCHECK(rclc_publisher_init_best_effort(
             &posicion_publisher, &node,
             ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32),
             "posicion"));
 
-        RCCHECK(rclc_publisher_init_default(
-            &voltaje_publisher, &node,
-            ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float32),
-            "voltaje"));
-
-        RCCHECK(rclc_publisher_init_default(
+        RCCHECK(rclc_publisher_init_best_effort(
             &angulo_publisher, &node,
             ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float32),
             "angulo"));
@@ -152,7 +150,6 @@ static void micro_ros_task(void *arg){
 
         // Limpieza si sale del bucle
         rcl_publisher_fini(&posicion_publisher, &node);
-        rcl_publisher_fini(&voltaje_publisher, &node);
         rcl_publisher_fini(&angulo_publisher, &node);
         rcl_timer_fini(&timer);
         rclc_executor_fini(&executor);

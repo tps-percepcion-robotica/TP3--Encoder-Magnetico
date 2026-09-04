@@ -1,3 +1,5 @@
+  <!-- URDF -> Unified Robot Description Format -->
+  
 <?xml version="1.0"?>
 <robot name="pierna_encoder" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
@@ -36,6 +38,7 @@
     <child link="muslo_link"/>
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
+      <!-- Limits Joint definido en radianes pto cero esta en el medio(abajo) -->
     <limit lower="-1.57" upper="1.57" effort="10" velocity="1"/>
   </joint>
 
@@ -56,7 +59,11 @@
     <child link="pierna_link"/>
     <origin xyz="0 0 -0.3" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
+      <!-- Limits Joint definido en radianes  0 a 120 grados pero puesto en radianes-->
     <limit lower="0" upper="2.09" effort="10" velocity="1"/>
   </joint>
+
+      <!-- Los limites del Joint son solo ilustrativos quein realiza el mapping es la funcion climp en calibracion!!-->
+
 
 </robot>

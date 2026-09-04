@@ -7,7 +7,7 @@
   </node>
 
   <node pkg="joint_state_publisher" exec="joint_state_publisher" name="joint_state_publisher" output="screen">
-    <param name="source_list" value="[/joint_states_sensores]" type="list_of_str" />
+    <param name="source_list" value="[/joint_states_sensores, /joint_states_sensores_rodilla]" type="list_of_str" />
   </node>
 
   <node pkg="rviz2" exec="rviz2" name="rviz2" args="-d $(var rviz_config_path)" output="screen" />
