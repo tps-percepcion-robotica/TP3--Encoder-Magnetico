@@ -6,6 +6,7 @@ mueve con la lectura de un sensor angular conectado a un ESP32 con micro-ROS:
 - `joint_cadera` —> potenciómetro
 - `joint_rodilla` —> encoder magnético AS5600 
 
+![Pierna armada](resource/WhatsApp%20Image%202026-09-04%20at%202.18.40%20PM%281%29.jpeg)
 
 ## Estructura del repo
 
