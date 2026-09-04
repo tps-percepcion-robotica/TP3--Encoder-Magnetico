@@ -8,6 +8,10 @@ mueve con la lectura de un sensor angular conectado a un ESP32 con micro-ROS:
 
 ![Pierna armada](resource/WhatsApp%20Image%202026-09-04%20at%202.18.40%20PM%281%29.jpeg)
 
+Respuesta del RViz al movimiento de la pierna:
+
+![Respuesta del RViz al movimiento de la pierna](resource/image%20copy.png)
+
 ## Estructura del repo
 
 ```
