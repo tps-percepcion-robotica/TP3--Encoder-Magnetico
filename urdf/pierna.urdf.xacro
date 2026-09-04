@@ -1,6 +1,5 @@
-  <!-- URDF -> Unified Robot Description Format -->
-  
 <?xml version="1.0"?>
+<!-- URDF -> Unified Robot Description Format -->
 <robot name="pierna_encoder" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <!-- Colores -->

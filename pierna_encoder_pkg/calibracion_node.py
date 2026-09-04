@@ -28,11 +28,10 @@ class CalibracionPotenciometro(Node):
         super().__init__('calibracion_potenciometro_node')  
 
         # Ruta por defecto del YAML
-              default_config = os.path.join(
+        default_config = os.path.join(
             get_package_share_directory('pierna_encoder_pkg'),
             'config', 'calibracion_potenciometros.yaml')
 
-       
         self.declare_parameter('pot_id', 'pierna_1')                  # qué entrada del YAML usar
         self.declare_parameter('config_path', default_config)         # ruta del YAML
         self.declare_parameter('raw_topic', '/pierna_1/adc_raw')      # tópico de ENTRADA (crudo)
@@ -83,7 +82,8 @@ class CalibracionPotenciometro(Node):
         raw_min = self.calib['raw_min']
         raw_max = self.calib['raw_max']
         offset_zero = self.calib['offset_zero']
-.
+        rango_grados = self.calib['rango_grados']
+
         lo, hi = sorted((raw_min, raw_max))
         raw_clamped = max(lo, min(hi, msg.data))
 
